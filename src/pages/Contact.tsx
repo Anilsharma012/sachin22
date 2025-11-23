@@ -3,11 +3,10 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, MapPin, Send } from "lucide-react";
-import { useState } from "react";
+import { Mail, MapPin, Send, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-// ⬇️ NEW: Supabase hatao, apna API helper use karo
 import { api } from "@/lib/api";
 
 const contactSchema = z.object({
@@ -17,6 +16,13 @@ const contactSchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(2000),
 });
 
+interface ContactInfo {
+  email?: string;
+  phone?: string;
+  address?: string;
+  whatsapp_number?: string;
+}
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -24,7 +30,20 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const loadContactInfo = async () => {
+      try {
+        const info = await api.get<ContactInfo>("/api/content/contact").catch(() => ({}));
+        setContactInfo(info);
+      } catch (error) {
+        console.error("Failed to load contact info:", error);
+      }
+    };
+    loadContactInfo();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +52,6 @@ const Contact = () => {
       const validatedData = contactSchema.parse(formData);
       setIsSubmitting(true);
 
-      // ⬇️ POST to your Express + MongoDB API
       await api.post("/api/contact", {
         name: validatedData.name,
         email: validatedData.email,
@@ -84,26 +102,45 @@ const Contact = () => {
             <div>
               <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
               <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
-                  <Mail className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <a
-                      href="mailto:sachintakoria2204@gmail.com"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      sachintakoria2204@gmail.com
-                    </a>
+                {contactInfo.email && (
+                  <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
+                    <Mail className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <h3 className="font-semibold mb-1">Email</h3>
+                      <a
+                        href={`mailto:${contactInfo.email}`}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {contactInfo.email}
+                      </a>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
-                  <MapPin className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Location</h3>
-                    <p className="text-muted-foreground">Rohtak, Haryana, India</p>
+                {contactInfo.phone && (
+                  <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
+                    <Phone className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <h3 className="font-semibold mb-1">Phone</h3>
+                      <a
+                        href={`tel:${contactInfo.phone}`}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {contactInfo.phone}
+                      </a>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {contactInfo.address && (
+                  <div className="flex items-start gap-4 p-4 rounded-lg border border-border bg-card">
+                    <MapPin className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <h3 className="font-semibold mb-1">Location</h3>
+                      <p className="text-muted-foreground">{contactInfo.address}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
