@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "build": "tsc",
     "seed": "node --loader ts-node/esm src/seeds/seed.ts",
+    "parse-resume": "node --loader ts-node/esm src/seeds/parseResume.ts",
     "lint": "eslint src"
   },
   "dependencies": {
