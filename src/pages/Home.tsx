@@ -2,9 +2,55 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Code2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
+import { api } from "@/lib/api";
+
+interface HeroContent {
+  title?: string;
+  subtitle?: string;
+  ctas?: Array<{ text: string; href: string }>;
+}
+
+interface SkillsContent {
+  frontend?: string[];
+  backend?: string[];
+}
 
 const Home = () => {
+  const [heroContent, setHeroContent] = useState<HeroContent>({});
+  const [skillsContent, setSkillsContent] = useState<SkillsContent>({});
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const [hero, skills] = await Promise.all([
+          api.get<HeroContent>("/api/content/hero").catch(() => ({})),
+          api.get<SkillsContent>("/api/content/skills").catch(() => ({})),
+        ]);
+        setHeroContent(hero);
+        setSkillsContent(skills);
+      } catch (error) {
+        console.error("Failed to load content:", error);
+      }
+    };
+    loadContent();
+  }, []);
+
+  const {
+    data: projects = [],
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => api.get("/api/projects"),
+  });
+
+  const featuredProjects = projects.filter((p: any) => p.is_featured).slice(0, 3);
+  const allTechs = [
+    ...(skillsContent.frontend || []),
+    ...(skillsContent.backend || []),
+  ].filter((t, i, arr) => arr.indexOf(t) === i);
+
   return (
     <PageLayout>
       <div className="relative overflow-hidden">
@@ -52,13 +98,13 @@ const Home = () => {
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
                 <span className="block">Hi, I'm</span>
                 <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-glow">
-                  Sachin Takoria
+                  {heroContent.title || "Sachin Takoria"}
                 </span>
               </h1>
               <div className="flex items-center justify-center gap-2">
                 <Code2 className="h-6 w-6 text-primary" />
                 <p className="text-xl md:text-2xl text-muted-foreground">
-                  MERN Stack Web Developer
+                  {heroContent.subtitle || "MERN Stack Web Developer"}
                 </p>
               </div>
             </motion.div>
@@ -81,17 +127,30 @@ const Home = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 relative z-10"
             >
-              <Link to="/projects">
-                <Button size="lg" className="group">
-                  View Projects
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button size="lg" variant="outline">
-                  Contact Me
-                </Button>
-              </Link>
+              {heroContent.ctas ? (
+                heroContent.ctas.map((cta: any, index) => (
+                  <Link key={index} to={cta.href}>
+                    <Button size="lg" variant={index === 0 ? "default" : "outline"} className={index === 0 ? "group" : ""}>
+                      {cta.text}
+                      {index === 0 && <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                    </Button>
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <Link to="/projects">
+                    <Button size="lg" className="group">
+                      View Projects
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                  <Link to="/contact">
+                    <Button size="lg" variant="outline">
+                      Contact Me
+                    </Button>
+                  </Link>
+                </>
+              )}
             </motion.div>
 
             {/* Stats */}
@@ -106,7 +165,7 @@ const Home = () => {
                 <div className="text-sm text-muted-foreground">Year Experience</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary">20+</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary">{projects.length}+</div>
                 <div className="text-sm text-muted-foreground">Projects Built</div>
               </div>
               <div className="text-center">
@@ -137,7 +196,7 @@ const Home = () => {
             viewport={{ once: true }}
             className="grid grid-cols-2 md:grid-cols-4 gap-6"
           >
-            {["MongoDB", "Express.js", "React", "Node.js", "TypeScript", "Tailwind CSS", "PostgreSQL", "REST APIs"].map((tech, index) => (
+            {(allTechs.length > 0 ? allTechs : ["MongoDB", "Express.js", "React", "Node.js", "TypeScript", "Tailwind CSS", "PostgreSQL", "REST APIs"]).map((tech, index) => (
               <motion.div
                 key={tech}
                 initial={{ opacity: 0, scale: 0.9 }}
