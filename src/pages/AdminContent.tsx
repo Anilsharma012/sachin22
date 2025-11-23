@@ -7,15 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, ImagePlus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ImageInput, ImageGallery } from '@/components/AdminImageUpload';
 
 interface ContentData {
-  hero?: { title: string; subtitle: string; ctas: any[] };
-  about?: { summary: string; highlights: string[] };
-  skills?: { frontend: string[]; backend: string[]; devops: string[] };
+  hero?: { title: string; subtitle: string; ctas: any[]; background_image?: string };
+  about?: { summary: string; highlights: string[]; background_image?: string };
+  skills?: { frontend: string[]; backend: string[]; devops: string[]; background_image?: string };
   contact?: { email: string; phone: string; address: string; whatsapp_number: string };
   social?: { [key: string]: string };
   banners?: { items: any[] };
+  backgrounds?: { hero?: string; about?: string; skills?: string; projects?: string };
 }
 
 const AdminContent = () => {
