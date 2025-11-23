@@ -101,41 +101,57 @@ const AdminContent = () => {
           </TabsList>
 
           <TabsContent value="hero" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Hero Section</CardTitle>
-                <CardDescription>Main landing section content</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Title</label>
-                  <Input
-                    value={content.hero?.title || ''}
-                    onChange={(e) =>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Hero Section</CardTitle>
+                  <CardDescription>Main landing section content and styling</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Title</label>
+                    <Input
+                      value={content.hero?.title || ''}
+                      onChange={(e) =>
+                        setContent((prev) => ({
+                          ...prev,
+                          hero: { ...prev.hero, title: e.target.value } as any,
+                        }))
+                      }
+                      placeholder="e.g., Hi, I'm Sachin Takoria"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Subtitle</label>
+                    <Input
+                      value={content.hero?.subtitle || ''}
+                      onChange={(e) =>
+                        setContent((prev) => ({
+                          ...prev,
+                          hero: { ...prev.hero, subtitle: e.target.value } as any,
+                        }))
+                      }
+                      placeholder="e.g., MERN Stack Web Developer"
+                    />
+                  </div>
+                  <ImageInput
+                    label="Background Image URL"
+                    value={content.hero?.background_image || ''}
+                    onChange={(value) =>
                       setContent((prev) => ({
                         ...prev,
-                        hero: { ...prev.hero, title: e.target.value } as any,
+                        hero: { ...prev.hero, background_image: value } as any,
                       }))
                     }
+                    placeholder="https://images.unsplash.com/..."
+                    preview
                   />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Subtitle</label>
-                  <Input
-                    value={content.hero?.subtitle || ''}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        hero: { ...prev.hero, subtitle: e.target.value } as any,
-                      }))
-                    }
-                  />
-                </div>
-                <Button onClick={() => saveContent('hero')} disabled={saving === 'hero'}>
-                  {saving === 'hero' ? 'Saving...' : 'Save'}
-                </Button>
-              </CardContent>
-            </Card>
+                  <Button onClick={() => saveContent('hero')} disabled={saving === 'hero'} className="w-full">
+                    {saving === 'hero' ? 'Saving...' : 'Save Hero Section'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="about" className="space-y-4">
