@@ -28,15 +28,8 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="relative">
-              <Code2 className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
-              <motion.div
-                className="absolute inset-0 rounded-full bg-primary/20 blur-xl"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </div>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <Logo size="sm" animated />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Sachin
             </span>
